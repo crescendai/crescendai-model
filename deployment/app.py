@@ -10,6 +10,10 @@ import requests
 import json
 import tempfile
 import os
+
+# Load environment variables from .env file
+from dotenv import load_dotenv
+load_dotenv()
 import subprocess
 import time
 import threading

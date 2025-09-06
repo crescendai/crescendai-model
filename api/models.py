@@ -128,11 +128,106 @@ class ErrorResponse(BaseModel):
 
 class HealthResponse(BaseModel):
     """Health check response"""
-
+    
+    # Configure model to allow protected namespaces
+    model_config = {'protected_namespaces': ()}
+    
     status: str = Field(..., description="Service status")
     model_loaded: bool = Field(..., description="Whether the model is loaded and ready")
     timestamp: str = Field(..., description="Current timestamp")
     version: str = Field(..., description="API version")
+
+
+# LLM-Enhanced Feedback Models
+class LLMFeedbackInsight(BaseModel):
+    """Individual insight in temporal feedback"""
+    
+    category: str = Field(..., description="Category: Technical|Musical|Interpretive")
+    observation: str = Field(..., description="Specific observation about this time segment")
+    actionable_advice: str = Field(..., description="Concrete practice suggestion or technique")
+    score_reference: str = Field(..., description="Reference to dimension and score")
+
+
+class LLMTemporalFeedback(BaseModel):
+    """Temporal feedback for a specific time segment"""
+    
+    timestamp: str = Field(..., description="Time segment (e.g., '0:00-0:03')")
+    insights: List[LLMFeedbackInsight] = Field(..., description="Specific insights for this segment")
+    practice_focus: str = Field(..., description="Primary area to work on in this passage")
+
+
+class LLMOverallAssessment(BaseModel):
+    """Overall assessment of the performance"""
+    
+    strengths: List[str] = Field(..., description="2-3 key technical/musical strengths")
+    priority_areas: List[str] = Field(..., description="2-3 most important areas to focus on")
+    performance_character: str = Field(..., description="Brief description of overall interpretive character")
+
+
+class LLMPracticeRecommendation(BaseModel):
+    """Individual practice recommendation"""
+    
+    skill_area: str = Field(..., description="Name of technique/skill")
+    specific_exercise: str = Field(..., description="Detailed practice method or exercise")
+    expected_outcome: str = Field(..., description="What improvement to expect")
+
+
+class LLMLongTermDevelopment(BaseModel):
+    """Long-term development recommendation"""
+    
+    musical_aspect: str = Field(..., description="Broader musical concept")
+    development_approach: str = Field(..., description="How to cultivate this aspect")
+    repertoire_suggestions: str = Field(..., description="Types of pieces that would help")
+
+
+class LLMPracticeRecommendations(BaseModel):
+    """Complete practice recommendations"""
+    
+    immediate_priorities: List[LLMPracticeRecommendation] = Field(
+        ..., description="Immediate technical priorities"
+    )
+    long_term_development: List[LLMLongTermDevelopment] = Field(
+        ..., description="Long-term musical development"
+    )
+
+
+class LLMFeedback(BaseModel):
+    """Complete LLM-generated pedagogical feedback"""
+    
+    # Configure model to allow field aliases and underscore fields
+    model_config = {'populate_by_name': True}
+    
+    overall_assessment: LLMOverallAssessment = Field(..., description="Overall performance assessment")
+    temporal_feedback: List[LLMTemporalFeedback] = Field(..., description="Time-specific feedback")
+    practice_recommendations: LLMPracticeRecommendations = Field(..., description="Practice guidance")
+    encouragement: str = Field(..., description="Motivating message acknowledging progress and potential")
+    metadata: Optional[Dict[str, Any]] = Field(default=None, description="Generation metadata", alias="_metadata")
+
+
+class EnhancedAnalysisResponse(BaseModel):
+    """Enhanced analysis response with LLM-generated pedagogical feedback"""
+    
+    # Original analysis data
+    overall_scores: DimensionScores = Field(
+        ..., description="Average scores across all chunks"
+    )
+    temporal_analysis: List[TemporalAnalysisItem] = Field(
+        ..., description="Chunk-by-chunk analysis results"
+    )
+    metadata: AnalysisMetadata = Field(..., description="Analysis process metadata")
+    
+    # LLM-enhanced features
+    llm_feedback: Optional[LLMFeedback] = Field(
+        default=None, description="AI-generated pedagogical feedback (if available)"
+    )
+    llm_service_status: str = Field(
+        default="unavailable", 
+        description="Status of LLM service: available|unavailable|error"
+    )
+    filtered_scores_summary: Optional[Dict[str, Any]] = Field(
+        default=None, 
+        description="Summary of filtered scores (ignoring zeros, categorized as low/moderate/good)"
+    )
 
 
 # Example responses for documentation
