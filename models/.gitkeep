@@ -1,0 +1,3 @@
+# Model checkpoint directory
+# Place your trained model checkpoint here:
+# final_finetuned_model.pkl
